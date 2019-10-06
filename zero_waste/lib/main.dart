@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'pages/add_product.dart';
 import 'package:camera/camera.dart';
-import 'dart:async';
 import 'globals.dart' as globals;
 
 void main() async {
