@@ -1,10 +1,7 @@
 import 'package:flutter/material.dart';
 import 'pages/add_product.dart';
-import 'package:camera/camera.dart';
-import 'globals.dart' as globals;
 
-void main() async {
-  globals.cameras = await availableCameras();
+void main(){
   runApp(MyApp());
 }
 

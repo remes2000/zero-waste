@@ -1,7 +1,5 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'globals.dart' as globals;
 import 'package:camera/camera.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
@@ -13,20 +11,23 @@ class CameraWidget extends StatefulWidget {
 
 class _CameraWidgetState extends State<CameraWidget> {
   CameraController controller;
-  List<CameraDescription> cameras = globals.cameras;
+  List<CameraDescription> cameras;
   Future<void> _initializeControllerFuture;
   String picturePath = "";
+  bool pictureAccepted = false;
 
   @override
   void initState() {
     super.initState();
-    controller = CameraController(cameras.first, ResolutionPreset.medium);
-    _initializeControllerFuture = controller.initialize();
-    _initializeControllerFuture.then((_) {
-      if (!mounted) {
-        return;
-      }
-      setState(() {});
+    availableCameras().then((cameras) {
+      controller = CameraController(cameras.first, ResolutionPreset.medium);
+      _initializeControllerFuture = controller.initialize();
+      _initializeControllerFuture.then((_) {
+        if (!mounted) {
+          return;
+        }
+        setState(() {});
+      });
     });
   }
 
@@ -51,23 +52,70 @@ class _CameraWidgetState extends State<CameraWidget> {
     }
   }
 
+  Widget selectDateView() {
+    return SafeArea(child: new LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        return Column(
+          children: <Widget>[
+            Center(
+                child: Container(
+                    height: constraints.maxHeight * 0.6,
+                    child: Card(child: Image.file(File(picturePath))))),
+            Container(
+                height: constraints.maxHeight * 0.1,
+                child: Center(
+                    child: Text("Data ważności: ",
+                        style: TextStyle(fontSize: 20, )))),
+            Container(
+                height: constraints.maxHeight * 0.3,
+                child: ListView(
+                    padding: const EdgeInsets.all(8),
+                    children: <Widget>[
+                      ListTile(
+                        title: Center(child: Text('1 dzień')),
+                      ),
+                      Divider(),
+                      ListTile(
+                        title: Center(child: Text('3 dni')),
+                      ),
+                      Divider(),
+                      ListTile(
+                        title: Center(child: Text('Tydzień')),
+                      ),
+                      Divider(),
+                      ListTile(
+                        title: Center(child: Text('Miesiąc')),
+                      ),
+                      Divider(),
+                      ListTile(
+                        title: Center(child: Text('Wybierz datę')),
+                      ),
+                      Divider(),
+                    ]))
+          ],
+        );
+      },
+    ));
+  }
+
   Widget acceptImageView() {
     return SafeArea(child: new LayoutBuilder(
         builder: (BuildContext context, BoxConstraints constraints) {
       return Column(
         children: <Widget>[
           Container(
-            height: constraints.maxHeight * 0.7,
-            width: constraints.maxWidth,
-            child: Image.file(File(picturePath))
-          ),
+              height: constraints.maxHeight * 0.7,
+              child: Card(child: Image.file(File(picturePath)))),
           Container(
               height: constraints.maxHeight * 0.3,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: <Widget>[
                   RawMaterialButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      pictureAccepted = true;
+                      this.setState(() {});
+                    },
                     child: Icon(
                       Icons.check,
                       size: 50,
@@ -80,6 +128,7 @@ class _CameraWidgetState extends State<CameraWidget> {
                   ),
                   RawMaterialButton(
                     onPressed: () {
+                      pictureAccepted = false;
                       picturePath = "";
                       this.setState(() {});
                     },
@@ -106,12 +155,11 @@ class _CameraWidgetState extends State<CameraWidget> {
         return Column(
           children: <Widget>[
             Container(
-                decoration: BoxDecoration(color: Colors.red),
                 height: constraints.maxHeight * 0.7,
-                width: constraints.maxWidth,
-                child: AspectRatio(
-                    aspectRatio: controller.value.aspectRatio,
-                    child: CameraPreview(controller))),
+                child: Card(
+                    child: AspectRatio(
+                        aspectRatio: controller.value.aspectRatio,
+                        child: CameraPreview(controller)))),
             Container(
               height: constraints.maxHeight * 0.3,
               child: Center(
@@ -158,14 +206,18 @@ class _CameraWidgetState extends State<CameraWidget> {
   @override
   Widget build(BuildContext context) {
     Widget widget;
-    if (!controller.value.isInitialized) {
+    if (controller == null || !controller.value.isInitialized) {
       widget = Container(
         height: MediaQuery.of(context).size.height * 0.7,
         width: MediaQuery.of(context).size.width,
       );
     } else {
       if (this.picturePath != '') {
-        widget = acceptImageView();
+        if (pictureAccepted) {
+          widget = selectDateView();
+        } else {
+          widget = acceptImageView();
+        }
       } else {
         widget = takeAPictureView();
       }
