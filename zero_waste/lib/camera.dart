@@ -129,6 +129,11 @@ class _CameraWidgetState extends State<CameraWidget> {
                       Divider(),
                       ListTile(
                         title: Center(child: Text('Miesiąc')),
+                        onTap: () {
+                          DateTime now = DateTime.now();
+                          DateTime monthInFuture = DateTime(now.year, now.month==12?1:now.month+1, now.day, now.hour, now.minute, now.second, now.millisecond, now.microsecond);
+                          saveProduct(monthInFuture);
+                        },
                       ),
                       Divider(),
                       ListTile(
