@@ -3,6 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
+import 'package:zero_waste/change_notifieres/product_model.dart';
+import 'models/product.dart';
+import 'package:provider/provider.dart';
 
 class CameraWidget extends StatefulWidget {
   @override
@@ -36,6 +39,38 @@ class _CameraWidgetState extends State<CameraWidget> {
     controller?.dispose();
     super.dispose();
   }
+
+  void saveProduct(DateTime expirationTime) async {
+    Product product = Product(id: null, expirationDate: (expirationTime.millisecondsSinceEpoch/1000).floor());
+    try{
+      product = await insertProduct(product);
+      print(product.toMap());
+      //Once we have product id, lets save our photo
+      final File tempPicture  = File(picturePath);
+      final String path = '${(await getApplicationDocumentsDirectory()).path}/${product.id}.png';
+      await tempPicture.copy(path);
+      product.imagePath = path;
+      //Now update product db row
+      await updateProduct(product);
+      picturePath = "";
+      pictureAccepted = false;
+      print(product.toMap());
+      Provider.of<ProductModel>(context).add(product);
+      this.setState(() {});
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text("Produkt został poprawnie dodany"),
+      ));
+    }catch(e) {
+      print(e);
+      picturePath = "";
+      pictureAccepted = false;
+      this.setState(() {});
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text("Wystąpił problem podczas dodawania produktu"),
+      ));
+    }
+  }
+
 
   void takeAPicture() async {
     try {
@@ -73,14 +108,23 @@ class _CameraWidgetState extends State<CameraWidget> {
                     children: <Widget>[
                       ListTile(
                         title: Center(child: Text('1 dzień')),
+                        onTap: () {
+                          saveProduct(DateTime.now().add(Duration(days: 1)));
+                        },
                       ),
                       Divider(),
                       ListTile(
                         title: Center(child: Text('3 dni')),
+                        onTap: () {
+                          saveProduct(DateTime.now().add(Duration(days: 3)));
+                        },
                       ),
                       Divider(),
                       ListTile(
                         title: Center(child: Text('Tydzień')),
+                        onTap: () {
+                          saveProduct(DateTime.now().add(Duration(days: 7)));
+                        },
                       ),
                       Divider(),
                       ListTile(

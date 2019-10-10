@@ -9,6 +9,12 @@ Future<Database> getDatabase() async{
         "CREATE TABLE product(id INTEGER PRIMARY KEY, image_path TEXT, expiration_date TEXT)",
       );
     },
-    version: 1
+    onUpgrade: (db, oldVersion, newVersion) async{
+      if(newVersion == 2){
+        await db.execute("DROP TABLE product");
+        await db.execute("CREATE TABLE product(id INTEGER PRIMARY KEY, image_path TEXT, expiration_date INTEGER)");
+      }
+    },
+    version: 2
   );
 }

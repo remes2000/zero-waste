@@ -2,9 +2,9 @@ import 'package:sqflite/sqflite.dart';
 import 'package:zero_waste/database/database.dart';
 import '../database/database.dart';
 class Product{
-  final int id;
-  final String expirationDate;
-  final String imagePath;
+  int id;
+  int expirationDate;
+  String imagePath;
 
   Product({this.id, this.expirationDate, this.imagePath});
 
@@ -17,17 +17,25 @@ class Product{
   }
 }
 
-Future<void> insertProduct(Product product) async{
+Future<Product> insertProduct(Product product) async{
   final Database db = await getDatabase();
-  await db.insert(
+  product.id = await db.insert(
     'product',
     product.toMap(),
   );
+  return product;
+}
+
+Future<Product> updateProduct(Product product) async {
+  final Database db = await getDatabase();
+  product.id = await db.update('product', product.toMap(),
+    where: 'id = ?', whereArgs: [product.id]);
+  return product;
 }
 
 Future<List<Product>> getAllProducts() async{
   final Database db = await getDatabase();
-  final List<Map<String, dynamic>> maps = await db.query('product')
+  final List<Map<String, dynamic>> maps = await db.query('product');
   return List.generate(maps.length, (i) {
     return Product(
       id: maps[i]['id'],
