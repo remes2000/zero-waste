@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:zero_waste/change_notifieres/product_model.dart';
 import 'package:zero_waste/globals.dart';
+import 'package:zero_waste/models/product.dart' as prefix0;
 
 import 'models/product.dart';
 
@@ -50,9 +51,23 @@ class _ProductListState extends State<ProductsList> {
     );
   }
 
-  void deleteProduct(Product product){
+  void deleteProduct(Product product) async{
     //First of all delete image file
-
+    File image = File(product.imagePath);
+    try{
+      Provider.of<ProductModel>(context).delete(product);
+      await image.delete();
+      prefix0.deleteProduct(product.id);
+      this.setState(() {});
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text("Produkt został poprawnie usuniety"),
+      ));
+    } catch(e){
+      Scaffold.of(context).showSnackBar(SnackBar(
+        content: Text("Wystąpił problem podczas usuwania produktu"),
+      ));
+      print(e);
+    }
   }
 
   @override
@@ -66,7 +81,10 @@ class _ProductListState extends State<ProductsList> {
               child: ListView.builder(
                   itemBuilder: (context, position) {
                     return Dismissible(
-                      key: Key(product.products[position].id.toString()),
+                      key: Key(UniqueKey().toString()),
+                      onDismissed: (DismissDirection direction){
+                        deleteProduct(product.products[position]);
+                      },
                       confirmDismiss: (DismissDirection direction) async {
                         final bool res = await showDialog(
                           context: context,

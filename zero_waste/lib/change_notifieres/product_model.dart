@@ -16,4 +16,9 @@ class ProductModel extends ChangeNotifier{
     _products.addAll(products);
     notifyListeners();
   }
+
+  void delete(Product product){
+    _products.removeAt(_products.indexOf(product));
+    notifyListeners();
+  }
 }

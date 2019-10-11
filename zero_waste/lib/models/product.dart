@@ -17,6 +17,14 @@ class Product{
   }
 }
 
+Future<void> deleteProduct(int id) async{
+  final Database db = await getDatabase();
+  await db.delete(
+    'product', where: 'id = ?', whereArgs: [id]
+  );
+  return;
+}
+
 Future<Product> insertProduct(Product product) async{
   final Database db = await getDatabase();
   product.id = await db.insert(
