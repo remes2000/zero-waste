@@ -74,7 +74,23 @@ class _ProductListState extends State<ProductsList> {
   Widget build(BuildContext context) {
     return Consumer<ProductModel>(
       builder: (context, product, child) {
-        if (product.products.length == 0) return Container();
+        if (product.products.length == 0) {
+          return Container(
+            height: MediaQuery.of(context).size.height,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: <Widget>[
+                Icon(
+                  Icons.cloud_off,
+                  size: 100,
+                  color: Colors.grey,
+                ),
+                Text("Brak produktów do wyświetlenia", style: TextStyle(fontSize: 20, color: Colors.grey),)
+              ],
+            ),
+          );
+        }
         return Column(
           children: <Widget>[
             Flexible(

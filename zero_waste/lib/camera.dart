@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:path_provider/path_provider.dart';
@@ -138,6 +139,8 @@ class _CameraWidgetState extends State<CameraWidget> {
                       Divider(),
                       ListTile(
                         title: Center(child: Text('Wybierz datę')),
+                        onTap: () {
+                        },
                       ),
                       Divider(),
                     ]))
