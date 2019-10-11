@@ -7,6 +7,7 @@ import 'package:path/path.dart' show join;
 import 'package:zero_waste/change_notifieres/product_model.dart';
 import 'models/product.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 
 class CameraWidget extends StatefulWidget {
   @override
@@ -140,6 +141,18 @@ class _CameraWidgetState extends State<CameraWidget> {
                       ListTile(
                         title: Center(child: Text('Wybierz datę')),
                         onTap: () {
+                          DatePicker.showDatePicker(
+                            context,
+                            minDateTime: DateTime.now(),
+                            pickerTheme: DateTimePickerTheme(
+                              cancel: Text("Anuluj", style: TextStyle(fontSize: 17),),
+                              confirm: Text("Zatwierdź", style: TextStyle(color: Colors.blue, fontSize: 17))
+                            ),
+                            //To be honest i have no idea what 'list' variable stores
+                            onConfirm: (DateTime date, List<int> list){
+                              saveProduct(date);
+                            }
+                          );
                         },
                       ),
                       Divider(),
