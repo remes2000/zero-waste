@@ -22,6 +22,12 @@ class _ProductListState extends State<ProductsList> {
     });
   }
 
+  String renderIsoDate(Product product) {
+    DateTime date = resetTime(
+        DateTime.fromMillisecondsSinceEpoch(product.expirationDate * 1000));
+    return date.toIso8601String().split("T")[0];
+  }
+
   Widget renderDate(Product product) {
     DateTime date = resetTime(
         DateTime.fromMillisecondsSinceEpoch(product.expirationDate * 1000));
@@ -57,7 +63,9 @@ class _ProductListState extends State<ProductsList> {
     File image = File(product.imagePath);
     try {
       Provider.of<ProductModel>(context).delete(product);
-      await image.delete();
+      if (await image.exists()) {
+        await image.delete();
+      }
       prefix0.deleteProduct(product.id);
       this.setState(() {});
       Scaffold.of(context).showSnackBar(SnackBar(
@@ -71,30 +79,39 @@ class _ProductListState extends State<ProductsList> {
     }
   }
 
-  Widget renderListViewHeader(Product product){
+  Widget renderListViewHeader(Product product) {
     DateTime now = DateTime.now();
-    DateTime productDate = DateTime.fromMillisecondsSinceEpoch(product.expirationDate*1000);
-    if(productDate.difference(now).inDays < 0){
+    DateTime productDate =
+        DateTime.fromMillisecondsSinceEpoch(product.expirationDate * 1000);
+    if (productDate.difference(now).inDays < 0) {
       return Padding(
         padding: const EdgeInsets.all(20),
-        child: Text("Przeterminowane :(", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.redAccent)),
+        child: Text("Przeterminowane :(",
+            style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Colors.redAccent)),
       );
-    }
-    else if(productDate.difference(now).inDays <= 7){
+    } else if (productDate.difference(now).inDays <= 7) {
       return Padding(
         padding: const EdgeInsets.all(20),
-        child: Text("W tym tygodniu", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.grey)),
+        child: Text("W tym tygodniu",
+            style: TextStyle(
+                fontSize: 30, fontWeight: FontWeight.bold, color: Colors.grey)),
       );
-    }
-    else if(productDate.month == now.month){
+    } else if (productDate.month == now.month) {
       return Padding(
         padding: const EdgeInsets.all(20),
-        child: Text("W tym miesiącu", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.grey)),
+        child: Text("W tym miesiącu",
+            style: TextStyle(
+                fontSize: 30, fontWeight: FontWeight.bold, color: Colors.grey)),
       );
     }
     return Padding(
       padding: const EdgeInsets.all(20),
-      child: Text("Później", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.grey)),
+      child: Text("Później",
+          style: TextStyle(
+              fontSize: 30, fontWeight: FontWeight.bold, color: Colors.grey)),
     );
   }
 
@@ -109,21 +126,28 @@ class _ProductListState extends State<ProductsList> {
         });
         List<Product> outOfTime = products.where((Product product) {
           DateTime now = resetTime(DateTime.now());
-          DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(product.expirationDate*1000));
+          DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(
+              product.expirationDate * 1000));
           return productDate.difference(now).inDays < 0;
         }).toList();
-        List<Product> thisWeek = products.where((Product product){
+        List<Product> thisWeek = products.where((Product product) {
           DateTime now = resetTime(DateTime.now());
-          DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(product.expirationDate*1000));
-          return productDate.difference(now).inDays <= 7 && productDate.difference(now).inDays >= 0;
+          DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(
+              product.expirationDate * 1000));
+          return productDate.difference(now).inDays <= 7 &&
+              productDate.difference(now).inDays >= 0;
         }).toList();
-        List<Product> thisMonth = products.where((Product product){
+        List<Product> thisMonth = products.where((Product product) {
           DateTime now = resetTime(DateTime.now());
-          DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(product.expirationDate*1000));
-          return now.month == productDate.month && productDate.difference(now).inDays > 7;
+          DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(
+              product.expirationDate * 1000));
+          return now.month == productDate.month &&
+              productDate.difference(now).inDays > 7;
         }).toList();
-        List<Product> later = products.where((Product product){
-          return !thisWeek.contains(product) && !thisMonth.contains(product);
+        List<Product> later = products.where((Product product) {
+          return !thisWeek.contains(product) &&
+              !thisMonth.contains(product) &&
+              !outOfTime.contains(product);
         }).toList();
         if (products.length == 0) {
           return Container(
@@ -152,7 +176,16 @@ class _ProductListState extends State<ProductsList> {
                   itemBuilder: (context, position) {
                     return Column(
                       children: <Widget>[
-                        ((outOfTime.length > 0 && outOfTime.first == products[position]) || (thisWeek.length > 0 && thisWeek.first == products[position]) || (thisMonth.length > 0 && thisMonth.first == products[position]) || (later.length > 0 && later.first == products[position]))?renderListViewHeader(products[position]):Container(),
+                        ((outOfTime.length > 0 &&
+                                    outOfTime.first == products[position]) ||
+                                (thisWeek.length > 0 &&
+                                    thisWeek.first == products[position]) ||
+                                (thisMonth.length > 0 &&
+                                    thisMonth.first == products[position]) ||
+                                (later.length > 0 &&
+                                    later.first == products[position]))
+                            ? renderListViewHeader(products[position])
+                            : Container(),
                         Dismissible(
                           key: Key(UniqueKey().toString()),
                           onDismissed: (DismissDirection direction) {
@@ -185,14 +218,13 @@ class _ProductListState extends State<ProductsList> {
                           child: Align(
                               alignment: Alignment.center,
                               child: Container(
-                                width: MediaQuery.of(context).size.width * 0.8,
+                                width: (MediaQuery.of(context).size.width * (MediaQuery.of(context).orientation==Orientation.portrait?0.8:0.5)),
                                 child: Card(
                                     child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
                                     Image.file(
-                                      File(
-                                          products[position].imagePath),
+                                      File(products[position].imagePath),
                                     ),
                                     Padding(
                                       padding: const EdgeInsets.all(7),
@@ -200,7 +232,12 @@ class _ProductListState extends State<ProductsList> {
                                           textAlign: TextAlign.left,
                                           style: TextStyle(fontSize: 18)),
                                     ),
-                                    renderDate(products[position])
+                                    renderDate(products[position]),
+                                    Padding(
+                                      padding: const EdgeInsets.all(7),
+                                      child: Text(
+                                          renderIsoDate(products[position])),
+                                    )
                                   ],
                                 )),
                               )),

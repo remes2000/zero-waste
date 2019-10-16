@@ -29,6 +29,7 @@ dependencies:
   path:
   provider: ^3.0.0
   flutter_cupertino_date_picker: ^1.0.12
+  flutter_local_notifications: ^0.8.4
 
 dev_dependencies:
   flutter_test:
