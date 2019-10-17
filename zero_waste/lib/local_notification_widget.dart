@@ -27,10 +27,9 @@ class _LocalNotificationWidgetState extends State<LocalNotificationWidget>{
   }
 
 
-  Future onSelectNotification(String payload) async => await Navigator.push(
-    context,
-    MaterialPageRoute(builder: (context) => HomePage())
-  );
+  Future onSelectNotification(String payload) async {
+   print('lol');
+  }
 
   @override
   Widget build(BuildContext context) => Padding(

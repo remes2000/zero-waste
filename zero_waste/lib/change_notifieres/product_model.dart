@@ -12,6 +12,12 @@ class ProductModel extends ChangeNotifier{
     notifyListeners();
   }
 
+  void set(List<Product> products){
+    _products.clear();
+    _products.addAll(products);
+    notifyListeners();
+  }
+
   void addAll(List<Product> products){
     _products.addAll(products);
     notifyListeners();

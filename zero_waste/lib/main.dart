@@ -6,6 +6,7 @@ import 'package:zero_waste/change_notifieres/product_model.dart';
 import 'package:zero_waste/database/database.dart';
 import 'package:zero_waste/local_notification_widget.dart';
 import 'package:zero_waste/models/product.dart';
+import 'package:zero_waste/pages/daily_summary.dart';
 import 'package:zero_waste/products_list.dart';
 import 'globals.dart';
 import 'pages/add_product.dart';
@@ -19,12 +20,24 @@ void main(){
   ));
 }
 
-class MyApp extends StatefulWidget {
+class MyApp extends StatelessWidget {
   @override
-  _MyAppState createState() => _MyAppState();
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'ZeroWaste',
+        theme: ThemeData(
+          primarySwatch: Colors.blue,
+        ),
+        home: HomePage()
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
+class HomePage extends StatefulWidget{
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage>{
   final notifications = FlutterLocalNotificationsPlugin();
 
   @override
@@ -44,6 +57,13 @@ class _MyAppState extends State<MyApp> {
     printPendingNotifications();
   }
 
+  Future onSelectNotification(String payload) async {
+    if(payload == summaryNotificationPayload){
+      return await Navigator.push(context, MaterialPageRoute(builder: (context) => DailySummary()));
+    }
+    return await Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+  }
+
   void printPendingNotifications() async {
     var pendingNotificationRequests =
     await notifications.pendingNotificationRequests();
@@ -54,67 +74,21 @@ class _MyAppState extends State<MyApp> {
   }
 
   void scheduleNotifications() async{
-    await scheduleDailyOngoingNotification(notifications, title: 'Zero Waste - sprawdź stan swojej lodówki', body: 'Kliknij w powiadomienie aby przejść do raportu dziennego', time: Time(23, 13, 0), payload: summaryNotificationPayload);
+    await scheduleDailyOngoingNotification(notifications, title: 'Zero Waste - sprawdź stan swojej lodówki', body: 'Kliknij w powiadomienie aby przejść do raportu dziennego', time: Time(11, 0, 0), payload: summaryNotificationPayload);
   }
 
-  Future<String> generateDailySummary() async {
-    List<Product> products = await getAllProducts();
-    List<Product> today = products.where((Product product) {
-      DateTime now = resetTime(DateTime.now());
-      DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(product.expirationDate*1000));
-      return productDate.difference(now).inDays == 0;
-    }).toList();
-    List<Product> tommorow = products.where((Product product) {
-      DateTime now = resetTime(DateTime.now());
-      DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(product.expirationDate*1000));
-      return productDate.difference(now).inDays == 1;
-    }).toList();
-    List<Product> dayAfterTommorow = products.where((Product product) {
-      DateTime now = resetTime(DateTime.now());
-      DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(product.expirationDate*1000));
-      return productDate.difference(now).inDays == 2;
-    }).toList();
-    List<Product> thisWeek = products.where((Product product){
-      DateTime now = resetTime(DateTime.now());
-      DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(product.expirationDate*1000));
-      return productDate.difference(now).inDays <= 7 && productDate.difference(now).inDays >= 3;
-    }).toList();
-    return 'Dziś: ${today.length} Jutro: ${tommorow.length} Pojutrze: ${dayAfterTommorow.length} W tym tygodniu: ${thisWeek.length}';
-  }
-
-  Future onSelectNotification(String payload) async {
-    if(payload == summaryNotificationPayload){
-      print('summary');
-      return await Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
-    }
-    return await Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'ZeroWaste',
-        theme: ThemeData(
-          primarySwatch: Colors.blue,
-        ),
-        home: HomePage()
-    );
-  }
-}
-
-class HomePage extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Zero Waste')
+          title: Text('Zero Waste')
       ),
       body: SafeArea(
         child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             return Container(
-             height: constraints.maxHeight,
-             width: constraints.maxWidth,
+              height: constraints.maxHeight,
+              width: constraints.maxWidth,
               child: ProductsList(),
             );
           },
@@ -123,11 +97,11 @@ class HomePage extends StatelessWidget{
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           Navigator.of(context).push(
-            MaterialPageRoute<void>(
-              builder: (BuildContext context) {
-                return AddProductPage();
-              }
-            )
+              MaterialPageRoute<void>(
+                  builder: (BuildContext context) {
+                    return AddProductPage();
+                  }
+              )
           );
         },
         child: Icon(Icons.add),

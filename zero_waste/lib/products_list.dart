@@ -18,7 +18,7 @@ class _ProductListState extends State<ProductsList> {
   void initState() {
     super.initState();
     getAllProducts().then((List<Product> products) {
-      Provider.of<ProductModel>(context).addAll(products);
+      Provider.of<ProductModel>(context).set(products);
     });
   }
 
