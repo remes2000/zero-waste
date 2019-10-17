@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/cupertino.dart';
+import 'package:zero_waste/globals.dart';
 import 'package:zero_waste/models/product.dart';
 
 class ProductModel extends ChangeNotifier{

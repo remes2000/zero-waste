@@ -14,6 +14,7 @@ class ProductsList extends StatefulWidget {
 }
 
 class _ProductListState extends State<ProductsList> {
+
   @override
   void initState() {
     super.initState();
@@ -125,29 +126,17 @@ class _ProductListState extends State<ProductsList> {
           return p1.expirationDate - p2.expirationDate;
         });
         List<Product> outOfTime = products.where((Product product) {
-          DateTime now = resetTime(DateTime.now());
-          DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(
-              product.expirationDate * 1000));
-          return productDate.difference(now).inDays < 0;
+          return isOutOfTime(product);
         }).toList();
         List<Product> thisWeek = products.where((Product product) {
-          DateTime now = resetTime(DateTime.now());
-          DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(
-              product.expirationDate * 1000));
-          return productDate.difference(now).inDays <= 7 &&
-              productDate.difference(now).inDays >= 0;
+          return isThisWeek(product);
         }).toList();
+        print(thisWeek);
         List<Product> thisMonth = products.where((Product product) {
-          DateTime now = resetTime(DateTime.now());
-          DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(
-              product.expirationDate * 1000));
-          return now.month == productDate.month &&
-              productDate.difference(now).inDays > 7;
+          return isThisMonth(product);
         }).toList();
         List<Product> later = products.where((Product product) {
-          return !thisWeek.contains(product) &&
-              !thisMonth.contains(product) &&
-              !outOfTime.contains(product);
+          return isLater(product);
         }).toList();
         if (products.length == 0) {
           return Container(
