@@ -15,12 +15,19 @@ bool isOutOfTime(Product product){
   return productDate.difference(now).inDays < 0;
 }
 
+bool isToday(Product product){
+  DateTime now = resetTime(DateTime.now());
+  DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(
+      product.expirationDate * 1000));
+  return productDate.difference(now).inDays == 0;
+}
+
 bool isThisWeek(Product product){
   DateTime now = resetTime(DateTime.now());
   DateTime productDate = resetTime(DateTime.fromMillisecondsSinceEpoch(
       product.expirationDate * 1000));
   return productDate.difference(now).inDays <= 7 &&
-      productDate.difference(now).inDays >= 0;
+      productDate.difference(now).inDays > 0;
 }
 
 bool isThisMonth(Product product){

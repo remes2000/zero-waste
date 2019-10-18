@@ -9,6 +9,19 @@ import 'package:zero_waste/models/product.dart' as prefix0;
 import 'models/product.dart';
 
 class ProductsList extends StatefulWidget {
+  final bool showOutOfDate;
+  final bool showTodays;
+  final bool showThisWeek;
+  final bool showThisMonth;
+  final bool showLater;
+
+  const ProductsList({
+      this.showOutOfDate,
+      this.showTodays,
+      this.showThisWeek,
+      this.showThisMonth,
+      this.showLater}) : super();
+
   @override
   _ProductListState createState() => _ProductListState();
 }
@@ -81,9 +94,9 @@ class _ProductListState extends State<ProductsList> {
   }
 
   Widget renderListViewHeader(Product product) {
-    DateTime now = DateTime.now();
+    DateTime now = resetTime(DateTime.now());
     DateTime productDate =
-        DateTime.fromMillisecondsSinceEpoch(product.expirationDate * 1000);
+        resetTime(DateTime.fromMillisecondsSinceEpoch(product.expirationDate * 1000));
     if (productDate.difference(now).inDays < 0) {
       return Padding(
         padding: const EdgeInsets.all(20),
@@ -92,6 +105,15 @@ class _ProductListState extends State<ProductsList> {
                 fontSize: 30,
                 fontWeight: FontWeight.bold,
                 color: Colors.redAccent)),
+      );
+    } else if(productDate.difference(now).inDays == 0){
+      return Padding(
+        padding: const EdgeInsets.all(20),
+        child: Text("Dzisiaj",
+            style: TextStyle(
+                fontSize: 30,
+                fontWeight: FontWeight.bold,
+                color: Colors.grey)),
       );
     } else if (productDate.difference(now).inDays <= 7) {
       return Padding(
@@ -125,19 +147,31 @@ class _ProductListState extends State<ProductsList> {
         products.sort((Product p1, Product p2) {
           return p1.expirationDate - p2.expirationDate;
         });
-        List<Product> outOfTime = products.where((Product product) {
-          return isOutOfTime(product);
+        products = products.where((Product p){
+          if(isToday(p)){
+            return this.widget.showTodays;
+          }
+          if(isOutOfTime(p)){
+            return this.widget.showOutOfDate;
+          }
+          if(isThisWeek(p)){
+            return this.widget.showThisWeek;
+          }
+          if(isThisMonth(p)){
+            return this.widget.showThisMonth;
+          }
+          if(isLater(p)){
+            return this.widget.showLater;
+          }
+          return true;
         }).toList();
-        List<Product> thisWeek = products.where((Product product) {
-          return isThisWeek(product);
-        }).toList();
-        print(thisWeek);
-        List<Product> thisMonth = products.where((Product product) {
-          return isThisMonth(product);
-        }).toList();
-        List<Product> later = products.where((Product product) {
-          return isLater(product);
-        }).toList();
+        List<Product> todays = products.where((Product product) => isToday(product)).toList();
+        List<Product> outOfTime = products.where((Product product) => isOutOfTime(product)).toList();
+        List<Product> thisWeek = products.where((Product product) => isThisWeek(product)).toList();
+        List<Product> thisMonth = products.where((Product product) => isThisMonth(product)).toList();
+        List<Product> later = products.where((Product product) => isLater(product)).toList();
+        print('tetet');
+        print(todays);
         if (products.length == 0) {
           return Container(
             height: MediaQuery.of(context).size.height,
@@ -172,7 +206,9 @@ class _ProductListState extends State<ProductsList> {
                                 (thisMonth.length > 0 &&
                                     thisMonth.first == products[position]) ||
                                 (later.length > 0 &&
-                                    later.first == products[position]))
+                                    later.first == products[position]) ||
+                                (todays.length > 0 &&
+                                    todays.first == products[position]))
                             ? renderListViewHeader(products[position])
                             : Container(),
                         Dismissible(
@@ -234,7 +270,7 @@ class _ProductListState extends State<ProductsList> {
                       ],
                     );
                   },
-                  itemCount: product.products.length),
+                  itemCount: products.length),
             )
           ],
         );

@@ -97,7 +97,7 @@ class _HomePageState extends State<HomePage> {
             return Container(
               height: constraints.maxHeight,
               width: constraints.maxWidth,
-              child: ProductsList(),
+              child: ProductsList(showOutOfDate: showOutOfDate, showTodays: showTodays, showThisWeek: showThisWeek, showThisMonth: showThisMonth, showLater: showLater),
             );
           },
         ),
@@ -109,6 +109,21 @@ class _HomePageState extends State<HomePage> {
             DrawerHeader(
               decoration: BoxDecoration(color: Colors.blue),
             ),
+            Padding(
+                padding: EdgeInsets.all(15),
+                child: ListTile(
+                  title: Text("Podsumowanie dzienne"),
+                  trailing: Icon(
+                    Icons.calendar_today,
+                    color: Colors.blue,
+                  ),
+                  onTap: () {
+                    Navigator.of(context)
+                        .push(MaterialPageRoute<void>(builder: (BuildContext context) {
+                      return DailySummary();
+                    }));
+                  },
+                )),
             Padding(
                 padding: EdgeInsets.all(15),
                 child: CheckboxListTile(
