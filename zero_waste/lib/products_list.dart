@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
 import 'package:zero_waste/change_notifieres/product_model.dart';
 import 'package:zero_waste/globals.dart';
@@ -14,13 +15,15 @@ class ProductsList extends StatefulWidget {
   final bool showThisWeek;
   final bool showThisMonth;
   final bool showLater;
+  final FlutterLocalNotificationsPlugin notifications;
 
   const ProductsList({
       this.showOutOfDate,
       this.showTodays,
       this.showThisWeek,
       this.showThisMonth,
-      this.showLater}) : super();
+      this.showLater,
+      this.notifications}) : super();
 
   @override
   _ProductListState createState() => _ProductListState();
@@ -80,7 +83,9 @@ class _ProductListState extends State<ProductsList> {
       if (await image.exists()) {
         await image.delete();
       }
-      prefix0.deleteProduct(product.id);
+      await prefix0.deleteProduct(product.id);
+      //cancel notification
+      await this.widget.notifications.cancel(product.id);
       this.setState(() {});
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text("Produkt został poprawnie usuniety"),
@@ -170,8 +175,6 @@ class _ProductListState extends State<ProductsList> {
         List<Product> thisWeek = products.where((Product product) => isThisWeek(product)).toList();
         List<Product> thisMonth = products.where((Product product) => isThisMonth(product)).toList();
         List<Product> later = products.where((Product product) => isLater(product)).toList();
-        print('tetet');
-        print(todays);
         if (products.length == 0) {
           return Container(
             height: MediaQuery.of(context).size.height,
@@ -248,6 +251,7 @@ class _ProductListState extends State<ProductsList> {
                                     child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: <Widget>[
+                                    Text(products[position].id.toString()),
                                     Image.file(
                                       File(products[position].imagePath),
                                     ),

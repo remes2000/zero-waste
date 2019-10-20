@@ -3,26 +3,35 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:path/path.dart' show join;
 import 'package:zero_waste/change_notifieres/product_model.dart';
+import 'package:zero_waste/local_notifications_helper.dart';
+import '../globals.dart';
 import '../models/product.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
 
-class AddProductPage extends StatelessWidget{
+class AddProductPage extends StatelessWidget {
+  final FlutterLocalNotificationsPlugin notifications;
+
+  AddProductPage({this.notifications}) : super();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-          title: Text('Dodaj produkt')
-      ),
-      body: AddProduct(),
+      appBar: AppBar(title: Text('Dodaj produkt')),
+      body: AddProduct(notifications: notifications),
     );
   }
 }
 
 class AddProduct extends StatefulWidget {
+  final FlutterLocalNotificationsPlugin notifications;
+
+  AddProduct({this.notifications}) : super();
+
   @override
   _AddProductState createState() => _AddProductState();
 }
@@ -65,13 +74,22 @@ class _AddProductState extends State<AddProduct> {
     super.dispose();
   }
 
+  void printPendingNotifications() async {
+    var pendingNotificationRequests =
+    await this.widget.notifications.pendingNotificationRequests();
+
+    pendingNotificationRequests.forEach((PendingNotificationRequest request) {
+      print("notification = " + request.body + " " + request.id.toString());
+    });
+  }
+
+
   void saveProduct(DateTime expirationTime) async {
     Product product = Product(
         id: null,
         expirationDate: (expirationTime.millisecondsSinceEpoch / 1000).floor());
     try {
       product = await insertProduct(product);
-      print(product.toMap());
       //Once we have product id, lets save our photo
       final File tempPicture = File(picturePath);
       final String path =
@@ -82,9 +100,17 @@ class _AddProductState extends State<AddProduct> {
       await updateProduct(product);
       picturePath = "";
       pictureAccepted = false;
-      print(product.toMap());
       Provider.of<ProductModel>(context).add(product);
+      //once everything is saved, let's schedule notification
+      DateTime scheduleNotificationTime = setTime(expirationTime, 16, 15, 0);
+      await scheduleLoudNotification(this.widget.notifications,
+          title: 'Data ważności produktu kończy się dzisiaj',
+          body: "Data ważności jednego z produktów wychodzi dzisiaj.",
+          payload: product.id.toString(),
+          id: product.id,
+          dateTime: scheduleNotificationTime);
       this.setState(() {});
+      printPendingNotifications();
       Scaffold.of(context).showSnackBar(SnackBar(
         content: Text("Produkt został poprawnie dodany"),
       ));

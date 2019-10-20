@@ -36,7 +36,7 @@ Future<Product> insertProduct(Product product) async{
 
 Future<Product> updateProduct(Product product) async {
   final Database db = await getDatabase();
-  product.id = await db.update('product', product.toMap(),
+  await db.update('product', product.toMap(),
     where: 'id = ?', whereArgs: [product.id]);
   return product;
 }

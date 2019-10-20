@@ -41,10 +41,6 @@ class _DailySummaryState extends State<DailySummary> {
       DateTime now = resetTime(DateTime.now());
       DateTime productDate = resetTime(
           DateTime.fromMillisecondsSinceEpoch(product.expirationDate * 1000));
-
-      print('difference');
-      print(productDate.difference(now).inDays);
-      print(productDate.toIso8601String());
       return productDate.difference(now).inDays == 0;
     }).toList();
     List<Product> tommorow = products.where((Product product) {

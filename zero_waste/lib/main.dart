@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:zero_waste/change_notifieres/product_model.dart';
 import 'package:zero_waste/database/database.dart';
-import 'package:zero_waste/local_notification_widget.dart';
 import 'package:zero_waste/models/product.dart';
 import 'package:zero_waste/pages/daily_summary.dart';
 import 'package:zero_waste/products_list.dart';
@@ -37,7 +36,7 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  final notifications = FlutterLocalNotificationsPlugin();
+  final FlutterLocalNotificationsPlugin notifications = FlutterLocalNotificationsPlugin();
   bool showOutOfDate = true;
   bool showTodays = true;
   bool showThisWeek = true;
@@ -58,7 +57,6 @@ class _HomePageState extends State<HomePage> {
         onSelectNotification: onSelectNotification);
 
     scheduleNotifications();
-    printPendingNotifications();
   }
 
   Future onSelectNotification(String payload) async {
@@ -74,13 +72,14 @@ class _HomePageState extends State<HomePage> {
     var pendingNotificationRequests =
         await notifications.pendingNotificationRequests();
 
+    print(pendingNotificationRequests);
     pendingNotificationRequests.forEach((PendingNotificationRequest request) {
-      print(request);
+      print("notification = " + request.body + " " + request.id.toString());
     });
   }
 
   void scheduleNotifications() async {
-    await scheduleDailyOngoingNotification(notifications,
+    await scheduleDailySilentNotification(notifications,
         title: 'Zero Waste - sprawdź stan swojej lodówki',
         body: 'Kliknij w powiadomienie aby przejść do raportu dziennego',
         time: Time(11, 0, 0),
@@ -97,7 +96,7 @@ class _HomePageState extends State<HomePage> {
             return Container(
               height: constraints.maxHeight,
               width: constraints.maxWidth,
-              child: ProductsList(showOutOfDate: showOutOfDate, showTodays: showTodays, showThisWeek: showThisWeek, showThisMonth: showThisMonth, showLater: showLater),
+              child: ProductsList(showOutOfDate: showOutOfDate, showTodays: showTodays, showThisWeek: showThisWeek, showThisMonth: showThisMonth, showLater: showLater, notifications: notifications,),
             );
           },
         ),
@@ -108,6 +107,13 @@ class _HomePageState extends State<HomePage> {
           children: <Widget>[
             DrawerHeader(
               decoration: BoxDecoration(color: Colors.blue),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/logo.png'),
+                  ),
+                ),
+              )
             ),
             Padding(
                 padding: EdgeInsets.all(15),
@@ -188,10 +194,10 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
+        onPressed: () async{
           Navigator.of(context)
               .push(MaterialPageRoute<void>(builder: (BuildContext context) {
-            return AddProductPage();
+            return AddProductPage(notifications: notifications);
           }));
         },
         child: Icon(Icons.add),

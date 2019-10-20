@@ -6,6 +6,10 @@ DateTime resetTime(DateTime object){
   return DateTime(object.year, object.month, object.day, 0, 0, 0, 0, 0);
 }
 
+DateTime setTime(DateTime object, int hours, int minutes, int seconds){
+  return DateTime(object.year, object.month, object.day, hours, minutes, seconds, 0, 0);
+}
+
 final String summaryNotificationPayload = "SUMMARY_NOTIFICATION_PAYLOAD";
 
 bool isOutOfTime(Product product){
