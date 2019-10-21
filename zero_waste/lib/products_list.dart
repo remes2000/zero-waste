@@ -6,6 +6,8 @@ import 'package:provider/provider.dart';
 import 'package:zero_waste/change_notifieres/product_model.dart';
 import 'package:zero_waste/globals.dart';
 import 'package:zero_waste/models/product.dart' as prefix0;
+import 'package:zero_waste/pages/product_preview.dart';
+import 'package:zero_waste/utils/card.dart';
 
 import 'models/product.dart';
 
@@ -17,62 +19,26 @@ class ProductsList extends StatefulWidget {
   final bool showLater;
   final FlutterLocalNotificationsPlugin notifications;
 
-  const ProductsList({
-      this.showOutOfDate,
+  const ProductsList(
+      {this.showOutOfDate,
       this.showTodays,
       this.showThisWeek,
       this.showThisMonth,
       this.showLater,
-      this.notifications}) : super();
+      this.notifications})
+      : super();
 
   @override
   _ProductListState createState() => _ProductListState();
 }
 
 class _ProductListState extends State<ProductsList> {
-
   @override
   void initState() {
     super.initState();
     getAllProducts().then((List<Product> products) {
       Provider.of<ProductModel>(context).set(products);
     });
-  }
-
-  String renderIsoDate(Product product) {
-    DateTime date = resetTime(
-        DateTime.fromMillisecondsSinceEpoch(product.expirationDate * 1000));
-    return date.toIso8601String().split("T")[0];
-  }
-
-  Widget renderDate(Product product) {
-    DateTime date = resetTime(
-        DateTime.fromMillisecondsSinceEpoch(product.expirationDate * 1000));
-    DateTime now = resetTime(DateTime.now());
-    DateTime weekInFuture = resetTime(
-        DateTime.fromMillisecondsSinceEpoch(now.millisecondsSinceEpoch)
-            .add(Duration(days: 7)));
-    String content = "";
-    if (date.isAfter(weekInFuture)) {
-      content = date.toIso8601String().split("T")[0];
-    } else {
-      int daysDifference = date.difference(now).inDays;
-      if (daysDifference == 0) {
-        content = "Ostatni dzień przydatności";
-      } else if (daysDifference < 0) {
-        content = "Produkt przeterminowany :(";
-      } else {
-        content = daysDifference.toString() +
-            (daysDifference == 1 ? ' dzień' : ' dni');
-      }
-    }
-    return Padding(
-      padding: const EdgeInsets.all(7),
-      child: Text(
-        content,
-        style: TextStyle(fontSize: 25, fontWeight: FontWeight.bold),
-      ),
-    );
   }
 
   void deleteProduct(Product product) async {
@@ -100,8 +66,8 @@ class _ProductListState extends State<ProductsList> {
 
   Widget renderListViewHeader(Product product) {
     DateTime now = resetTime(DateTime.now());
-    DateTime productDate =
-        resetTime(DateTime.fromMillisecondsSinceEpoch(product.expirationDate * 1000));
+    DateTime productDate = resetTime(
+        DateTime.fromMillisecondsSinceEpoch(product.expirationDate * 1000));
     if (productDate.difference(now).inDays < 0) {
       return Padding(
         padding: const EdgeInsets.all(20),
@@ -111,14 +77,12 @@ class _ProductListState extends State<ProductsList> {
                 fontWeight: FontWeight.bold,
                 color: Colors.redAccent)),
       );
-    } else if(productDate.difference(now).inDays == 0){
+    } else if (productDate.difference(now).inDays == 0) {
       return Padding(
         padding: const EdgeInsets.all(20),
         child: Text("Dzisiaj",
             style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey)),
+                fontSize: 30, fontWeight: FontWeight.bold, color: Colors.grey)),
       );
     } else if (productDate.difference(now).inDays <= 7) {
       return Padding(
@@ -152,29 +116,34 @@ class _ProductListState extends State<ProductsList> {
         products.sort((Product p1, Product p2) {
           return p1.expirationDate - p2.expirationDate;
         });
-        products = products.where((Product p){
-          if(isToday(p)){
+        products = products.where((Product p) {
+          if (isToday(p)) {
             return this.widget.showTodays;
           }
-          if(isOutOfTime(p)){
+          if (isOutOfTime(p)) {
             return this.widget.showOutOfDate;
           }
-          if(isThisWeek(p)){
+          if (isThisWeek(p)) {
             return this.widget.showThisWeek;
           }
-          if(isThisMonth(p)){
+          if (isThisMonth(p)) {
             return this.widget.showThisMonth;
           }
-          if(isLater(p)){
+          if (isLater(p)) {
             return this.widget.showLater;
           }
           return true;
         }).toList();
-        List<Product> todays = products.where((Product product) => isToday(product)).toList();
-        List<Product> outOfTime = products.where((Product product) => isOutOfTime(product)).toList();
-        List<Product> thisWeek = products.where((Product product) => isThisWeek(product)).toList();
-        List<Product> thisMonth = products.where((Product product) => isThisMonth(product)).toList();
-        List<Product> later = products.where((Product product) => isLater(product)).toList();
+        List<Product> todays =
+            products.where((Product product) => isToday(product)).toList();
+        List<Product> outOfTime =
+            products.where((Product product) => isOutOfTime(product)).toList();
+        List<Product> thisWeek =
+            products.where((Product product) => isThisWeek(product)).toList();
+        List<Product> thisMonth =
+            products.where((Product product) => isThisMonth(product)).toList();
+        List<Product> later =
+            products.where((Product product) => isLater(product)).toList();
         if (products.length == 0) {
           return Container(
             height: MediaQuery.of(context).size.height,
@@ -245,31 +214,21 @@ class _ProductListState extends State<ProductsList> {
                           },
                           child: Align(
                               alignment: Alignment.center,
-                              child: Container(
-                                width: (MediaQuery.of(context).size.width * (MediaQuery.of(context).orientation==Orientation.portrait?0.8:0.5)),
-                                child: Card(
-                                    child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: <Widget>[
-                                    Text(products[position].id.toString()),
-                                    Image.file(
-                                      File(products[position].imagePath),
-                                    ),
-                                    Padding(
-                                      padding: const EdgeInsets.all(7),
-                                      child: Text("Data ważności: ",
-                                          textAlign: TextAlign.left,
-                                          style: TextStyle(fontSize: 18)),
-                                    ),
-                                    renderDate(products[position]),
-                                    Padding(
-                                      padding: const EdgeInsets.all(7),
-                                      child: Text(
-                                          renderIsoDate(products[position])),
-                                    )
-                                  ],
-                                )),
-                              )),
+                              child: GestureDetector(
+                                  onTap: () {
+                                    Navigator.of(context)
+                                        .push(MaterialPageRoute<void>(builder: (BuildContext context) {
+                                      return ProductPreview(productId: products[position].id);
+                                    }));
+                                  },
+                                  child: Container(
+                                    width: (MediaQuery.of(context).size.width *
+                                        (MediaQuery.of(context).orientation ==
+                                                Orientation.portrait
+                                            ? 0.8
+                                            : 0.5)),
+                                    child: generateProductCard(products[position])
+                                  ))),
                         )
                       ],
                     );

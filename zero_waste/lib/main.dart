@@ -6,6 +6,7 @@ import 'package:zero_waste/change_notifieres/product_model.dart';
 import 'package:zero_waste/database/database.dart';
 import 'package:zero_waste/models/product.dart';
 import 'package:zero_waste/pages/daily_summary.dart';
+import 'package:zero_waste/pages/product_preview.dart';
 import 'package:zero_waste/products_list.dart';
 import 'globals.dart';
 import 'pages/add_product.dart';
@@ -25,7 +26,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'ZeroWaste',
         theme: ThemeData(
-          primarySwatch: Colors.blue,
+          primarySwatch: Colors.blue
         ),
         home: HomePage());
   }
@@ -65,16 +66,20 @@ class _HomePageState extends State<HomePage> {
           context, MaterialPageRoute(builder: (context) => DailySummary()));
     }
     return await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => HomePage()));
+        context, MaterialPageRoute(builder: (context) => ProductPreview(productId: int.parse(payload))));
   }
 
   void printPendingNotifications() async {
     var pendingNotificationRequests =
         await notifications.pendingNotificationRequests();
 
-    print(pendingNotificationRequests);
+    print("----------===PENDING NOTIFICATIONS===----------");
     pendingNotificationRequests.forEach((PendingNotificationRequest request) {
-      print("notification = " + request.body + " " + request.id.toString());
+      print('notification');
+      print('id = ' + request.id.toString());
+      print('title = ' + request.title);
+      print('body = ' + request.body);
+      print('payload = ' + request.payload);
     });
   }
 
@@ -84,6 +89,7 @@ class _HomePageState extends State<HomePage> {
         body: 'Kliknij w powiadomienie aby przejść do raportu dziennego',
         time: Time(11, 0, 0),
         payload: summaryNotificationPayload);
+    printPendingNotifications();
   }
 
   @override

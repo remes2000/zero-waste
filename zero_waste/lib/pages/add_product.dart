@@ -78,8 +78,13 @@ class _AddProductState extends State<AddProduct> {
     var pendingNotificationRequests =
     await this.widget.notifications.pendingNotificationRequests();
 
+    print("----------===PENDING NOTIFICATIONS===----------");
     pendingNotificationRequests.forEach((PendingNotificationRequest request) {
-      print("notification = " + request.body + " " + request.id.toString());
+      print('notification');
+      print('id = ' + request.id.toString());
+      print('title = ' + request.title);
+      print('body = ' + request.body);
+      print('payload = ' + request.payload);
     });
   }
 
@@ -102,12 +107,16 @@ class _AddProductState extends State<AddProduct> {
       pictureAccepted = false;
       Provider.of<ProductModel>(context).add(product);
       //once everything is saved, let's schedule notification
-      DateTime scheduleNotificationTime = setTime(expirationTime, 16, 15, 0);
-      await scheduleLoudNotification(this.widget.notifications,
+      DateTime scheduleNotificationTime = setTime(expirationTime, 12, 31, 0);
+      await scheduleLoudBigPictureNotification(this.widget.notifications,
           title: 'Data ważności produktu kończy się dzisiaj',
           body: "Data ważności jednego z produktów wychodzi dzisiaj.",
           payload: product.id.toString(),
           id: product.id,
+          bigPictureStyleInformation: BigPictureStyleInformation(
+            product.imagePath,
+            BitmapSource.FilePath
+          ),
           dateTime: scheduleNotificationTime);
       this.setState(() {});
       printPendingNotifications();

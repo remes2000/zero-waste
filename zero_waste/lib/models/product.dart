@@ -41,6 +41,16 @@ Future<Product> updateProduct(Product product) async {
   return product;
 }
 
+Future<Product> getProductById(int id) async{
+  final Database db = await getDatabase();
+  Map<String, dynamic> result = (await db.query('product', where: 'id = ?', whereArgs: [id])).first;
+  return Product(
+    id: result['id'],
+    expirationDate: result['expiration_date'],
+    imagePath: result['image_path']
+  );
+}
+
 Future<List<Product>> getAllProducts() async{
   final Database db = await getDatabase();
   final List<Map<String, dynamic>> maps = await db.query('product');

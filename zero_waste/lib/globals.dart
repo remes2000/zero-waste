@@ -45,3 +45,9 @@ bool isThisMonth(Product product){
 bool isLater(Product product){
   return !isOutOfTime(product) && !isThisWeek(product) && !isThisMonth(product);
 }
+
+String renderIsoDate(Product product) {
+  DateTime date = resetTime(
+      DateTime.fromMillisecondsSinceEpoch(product.expirationDate * 1000));
+  return date.toIso8601String().split("T")[0];
+}

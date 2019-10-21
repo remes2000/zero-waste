@@ -93,5 +93,34 @@ Future scheduleLoudNotification(
   return notifications.schedule(id, title, body, dateTime, _loudNotification);
 }
 
+NotificationDetails getLoudBigPictureNotificationSettings(BigPictureStyleInformation bigPictureStyleInformation) {
+  final androidChannelSpecifics = AndroidNotificationDetails(
+    'your channel id',
+    'your channel name',
+    'your channel description',
+    importance: Importance.High,
+    playSound: true,
+    enableVibration: true,
+    autoCancel: true,
+    style: AndroidNotificationStyle.BigPicture,
+    styleInformation: bigPictureStyleInformation
+  );
+  final iOSChannelSpecifics = IOSNotificationDetails();
+  return NotificationDetails(androidChannelSpecifics, iOSChannelSpecifics);
+}
+
+Future scheduleLoudBigPictureNotification(
+    FlutterLocalNotificationsPlugin notifications, {
+      @required String title,
+      @required String body,
+      @required int id,
+      String payload,
+      @required DateTime dateTime,
+      @required BigPictureStyleInformation bigPictureStyleInformation
+    }) {
+  return notifications.show(id, title, body, getLoudBigPictureNotificationSettings(bigPictureStyleInformation), payload: payload);
+}
+
+
 
 
