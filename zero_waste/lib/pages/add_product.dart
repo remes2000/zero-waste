@@ -107,10 +107,10 @@ class _AddProductState extends State<AddProduct> {
       pictureAccepted = false;
       Provider.of<ProductModel>(context).add(product);
       //once everything is saved, let's schedule notification
-      DateTime scheduleNotificationTime = setTime(expirationTime, 12, 31, 0);
+      DateTime scheduleNotificationTime = setTime(expirationTime, 12, 0, 0);
       await scheduleLoudBigPictureNotification(this.widget.notifications,
-          title: 'Data ważności produktu kończy się dzisiaj',
-          body: "Data ważności jednego z produktów wychodzi dzisiaj.",
+          title: 'Data ważności jednego z produktów kończy się dzisiaj',
+          body: "Kliknij w powiadomienie aby zobaczyć szczegóły",
           payload: product.id.toString(),
           id: product.id,
           bigPictureStyleInformation: BigPictureStyleInformation(

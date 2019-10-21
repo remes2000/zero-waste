@@ -118,7 +118,7 @@ Future scheduleLoudBigPictureNotification(
       @required DateTime dateTime,
       @required BigPictureStyleInformation bigPictureStyleInformation
     }) {
-  return notifications.show(id, title, body, getLoudBigPictureNotificationSettings(bigPictureStyleInformation), payload: payload);
+  return notifications.schedule(id, title, body, dateTime, getLoudBigPictureNotificationSettings(bigPictureStyleInformation), payload: payload);
 }
 
 

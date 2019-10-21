@@ -11,8 +11,8 @@ Widget generateProductCard(Product product){
       child: Column(
         crossAxisAlignment:
         CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Text(product.id.toString()),
           Image.file(
             File(product.imagePath),
           ),

@@ -31,7 +31,19 @@ class _ProductPreviewState extends State<ProductPreview> {
     Widget widget = Container();
 
     if (this.product != null) {
-      widget = generateProductCard(product);
+      widget = Column(
+        children: <Widget>[
+          Flexible(
+              child: ListView.builder(
+                  itemBuilder: (context, position) {
+                    return Padding(
+                      padding: EdgeInsets.only(top: 25),
+                      child: generateProductCard(product),
+                    );
+                  },
+                  itemCount: 1))
+        ],
+      );
     }
 
     //SafeArea(child: new LayoutBuilder(
@@ -44,7 +56,10 @@ class _ProductPreviewState extends State<ProductPreview> {
           builder: (BuildContext context, BoxConstraints constrains) {
             return Center(
               child: Container(
-                width: 0.8 * constrains.maxWidth,
+                width: (MediaQuery.of(context).size.width *
+                    (MediaQuery.of(context).orientation == Orientation.portrait
+                        ? 0.8
+                        : 0.5)),
                 child: widget,
               ),
             );

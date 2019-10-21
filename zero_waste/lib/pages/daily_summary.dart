@@ -84,7 +84,7 @@ class _DailySummaryState extends State<DailySummary> {
             return Column(
               children: <Widget>[
                 Container(
-                    height: constraints.maxHeight * 0.15,
+                    height: constraints.maxHeight * (MediaQuery.of(context).orientation == Orientation.portrait?0.15:0.3),
                     child: Center(
                         child: Padding(
                   padding: const EdgeInsets.all(15),
@@ -102,7 +102,7 @@ class _DailySummaryState extends State<DailySummary> {
                   )
                 ))),
                 Container(
-                  height: constraints.maxHeight * 0.85,
+                  height: constraints.maxHeight * (MediaQuery.of(context).orientation == Orientation.portrait?0.85:0.7),
                   child: ListView.builder(
                     itemBuilder: (context, position) {
                       return Center(
