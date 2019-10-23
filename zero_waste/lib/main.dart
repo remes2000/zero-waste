@@ -61,12 +61,14 @@ class _HomePageState extends State<HomePage> {
   }
 
   Future onSelectNotification(String payload) async {
+    Navigator.popUntil(context, ModalRoute.withName(Navigator.defaultRouteName));
+
     if (payload == summaryNotificationPayload) {
       return await Navigator.push(
-          context, MaterialPageRoute(builder: (context) => DailySummary()));
-    }
+          context, MaterialPageRoute(builder: (context) => DailySummary(notifications: this.notifications,)));
+  }
     return await Navigator.push(
-        context, MaterialPageRoute(builder: (context) => ProductPreview(productId: int.parse(payload))));
+        context, MaterialPageRoute(builder: (context) => ProductPreview(productId: int.parse(payload), notifications: this.notifications,)));
   }
 
   void printPendingNotifications() async {
@@ -86,9 +88,9 @@ class _HomePageState extends State<HomePage> {
   void scheduleNotifications() async {
     await scheduleDailySilentNotification(notifications,
         title: 'Zero Waste - sprawdź stan swojej lodówki',
-        body: 'Kliknij w powiadomienie aby przejść do raportu dziennego',
-        time: Time(11, 0, 0),
-        payload: summaryNotificationPayload);
+    body: 'Kliknij w powiadomienie aby przejść do raportu dziennego',
+    time: Time(11, 0, 0),
+    payload: summaryNotificationPayload);
     printPendingNotifications();
   }
 
@@ -132,7 +134,7 @@ class _HomePageState extends State<HomePage> {
                   onTap: () {
                     Navigator.of(context)
                         .push(MaterialPageRoute<void>(builder: (BuildContext context) {
-                      return DailySummary();
+                      return DailySummary(notifications: this.notifications);
                     }));
                   },
                 )),

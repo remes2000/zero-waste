@@ -19,10 +19,11 @@ Future showSilentNotification(
   FlutterLocalNotificationsPlugin notifications, {
   @required String title,
   @required String body,
+      String payload,
   int id = 0,
 }) =>
     _showNotification(notifications,
-        title: title, body: body, id: id, type: _silentNotification);
+        title: title, body: body, id: id, type: _silentNotification, payload: payload);
 
 NotificationDetails get _loudNotification {
   final androidChannelSpecifics = AndroidNotificationDetails(
@@ -118,7 +119,20 @@ Future scheduleLoudBigPictureNotification(
       @required DateTime dateTime,
       @required BigPictureStyleInformation bigPictureStyleInformation
     }) {
-  return notifications.schedule(id, title, body, dateTime, getLoudBigPictureNotificationSettings(bigPictureStyleInformation), payload: payload);
+  return notifications.schedule(id, title, body, dateTime,
+      getLoudBigPictureNotificationSettings(bigPictureStyleInformation),
+      payload: payload);
+}
+
+  Future showLoudBigPictureNotification(
+      FlutterLocalNotificationsPlugin notifications, {
+        @required String title,
+        @required String body,
+        @required int id,
+        String payload,
+        @required BigPictureStyleInformation bigPictureStyleInformation
+      }) {
+    return notifications.show(id, title, body, getLoudBigPictureNotificationSettings(bigPictureStyleInformation), payload: payload);
 }
 
 

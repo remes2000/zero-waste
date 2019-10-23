@@ -218,7 +218,7 @@ class _ProductListState extends State<ProductsList> {
                                   onTap: () {
                                     Navigator.of(context)
                                         .push(MaterialPageRoute<void>(builder: (BuildContext context) {
-                                      return ProductPreview(productId: products[position].id);
+                                      return ProductPreview(productId: products[position].id, notifications: this.widget.notifications,);
                                     }));
                                   },
                                   child: Container(

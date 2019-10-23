@@ -1,9 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:zero_waste/local_notifications_helper.dart';
 import 'package:zero_waste/models/product.dart';
 
 import '../globals.dart';
 
 class DailySummary extends StatefulWidget {
+  final FlutterLocalNotificationsPlugin notifications;
+
+  DailySummary({@required this.notifications}) : super();
+
   @override
   _DailySummaryState createState() => _DailySummaryState();
 }
@@ -75,34 +81,64 @@ class _DailySummaryState extends State<DailySummary> {
     this.setState(() {});
   }
 
+  void showNotification() async {
+    await showSilentNotification(this.widget.notifications,
+        title: 'Zero Waste - sprawdź stan swojej lodówki',
+        body: 'Kliknij w powiadomienie aby przejść do raportu dziennego',
+        id: -12352,
+        payload: summaryNotificationPayload);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(title: Text("Podsumowanie dzienne")),
+        appBar: AppBar(
+          title: Text("Podsumowanie dzienne"),
+          actions: <Widget>[
+            IconButton(
+              icon: Icon(Icons.notifications),
+              onPressed: () {
+                showNotification();
+              },
+            )
+          ],
+        ),
         body: SafeArea(child: LayoutBuilder(
           builder: (BuildContext context, BoxConstraints constraints) {
             return Column(
               children: <Widget>[
                 Container(
-                    height: constraints.maxHeight * (MediaQuery.of(context).orientation == Orientation.portrait?0.15:0.3),
+                    height: constraints.maxHeight *
+                        (MediaQuery.of(context).orientation ==
+                                Orientation.portrait
+                            ? 0.15
+                            : 0.3),
                     child: Center(
                         child: Padding(
-                  padding: const EdgeInsets.all(15),
-                  child: Column(
-                    children: <Widget>[
-                      Text(
-                        DateTime.now().toIso8601String().split('T')[0],
-                        style: TextStyle(
-                            fontSize: 35,
-                            color: Colors.grey,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text("Datę ważności kończy: ", style: TextStyle(fontSize: 15),)
-                    ],
-                  )
-                ))),
+                            padding: const EdgeInsets.all(15),
+                            child: Column(
+                              children: <Widget>[
+                                Text(
+                                  DateTime.now()
+                                      .toIso8601String()
+                                      .split('T')[0],
+                                  style: TextStyle(
+                                      fontSize: 35,
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.bold),
+                                ),
+                                Text(
+                                  "Datę ważności kończy: ",
+                                  style: TextStyle(fontSize: 15),
+                                )
+                              ],
+                            )))),
                 Container(
-                  height: constraints.maxHeight * (MediaQuery.of(context).orientation == Orientation.portrait?0.85:0.7),
+                  height: constraints.maxHeight *
+                      (MediaQuery.of(context).orientation ==
+                              Orientation.portrait
+                          ? 0.85
+                          : 0.7),
                   child: ListView.builder(
                     itemBuilder: (context, position) {
                       return Center(
