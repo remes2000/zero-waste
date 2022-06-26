@@ -9,12 +9,13 @@ import '../globals.dart';
 Widget generateProductCard(Product product){
   return Card(
       child: Column(
-        crossAxisAlignment:
-        CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          Image.file(
-            File(product.imagePath),
+          Center(
+            child: Image.file(
+              File(product.imagePath),
+            )
           ),
           Padding(
             padding: const EdgeInsets.all(7),

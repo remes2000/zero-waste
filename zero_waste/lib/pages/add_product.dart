@@ -11,7 +11,7 @@ import 'package:zero_waste/local_notifications_helper.dart';
 import '../globals.dart';
 import '../models/product.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_cupertino_date_picker/flutter_cupertino_date_picker.dart';
+import 'package:flutter_cupertino_date_picker_fork/flutter_cupertino_date_picker_fork.dart';
 
 class AddProductPage extends StatelessWidget {
   final FlutterLocalNotificationsPlugin notifications;
@@ -105,7 +105,7 @@ class _AddProductState extends State<AddProduct> {
       await updateProduct(product);
       picturePath = "";
       pictureAccepted = false;
-      Provider.of<ProductModel>(context).add(product);
+      Provider.of<ProductModel>(context, listen: false).add(product);
       //once everything is saved, let's schedule notification
       DateTime scheduleNotificationTime = setTime(expirationTime, 12, 0, 0);
       await scheduleLoudBigPictureNotification(this.widget.notifications,

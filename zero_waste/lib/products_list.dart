@@ -37,7 +37,7 @@ class _ProductListState extends State<ProductsList> {
   void initState() {
     super.initState();
     getAllProducts().then((List<Product> products) {
-      Provider.of<ProductModel>(context).set(products);
+      Provider.of<ProductModel>(context, listen: false).set(products);
     });
   }
 
@@ -45,7 +45,7 @@ class _ProductListState extends State<ProductsList> {
     //First of all delete image file
     File image = File(product.imagePath);
     try {
-      Provider.of<ProductModel>(context).delete(product);
+      Provider.of<ProductModel>(context, listen: false).delete(product);
       if (await image.exists()) {
         await image.delete();
       }

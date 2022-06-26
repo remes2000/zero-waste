@@ -1,21 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:provider/provider.dart';
-import 'package:sqflite/sqflite.dart';
 import 'package:zero_waste/change_notifieres/product_model.dart';
-import 'package:zero_waste/database/database.dart';
-import 'package:zero_waste/models/product.dart';
 import 'package:zero_waste/pages/daily_summary.dart';
 import 'package:zero_waste/pages/product_preview.dart';
 import 'package:zero_waste/products_list.dart';
+
 import 'globals.dart';
-import 'pages/add_product.dart';
-import 'models/product.dart';
 import 'local_notifications_helper.dart';
+import 'pages/add_product.dart';
 
 void main() {
   runApp(ChangeNotifierProvider(
-    builder: (context) => ProductModel(),
+    create: (context) => ProductModel(),
     child: MyApp(),
   ));
 }
